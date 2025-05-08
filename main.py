@@ -1,7 +1,41 @@
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
-from typing import List
+from fastapi    import FastAPI, WebSocket, WebSocketDisconnect
+from aiogram    import Bot, Dispatcher
+from contextlib import asynccontextmanager
+from dotenv     import load_dotenv
+from typing     import List
+from bot        import router
+from settings   import settings
 
-app = FastAPI()
+import logging
+import asyncio
+
+bot = Bot(token=settings.token)
+dp = Dispatcher()
+
+async def start_bot():
+    dp.include_router(router)
+    logging.info("Starting Telegram bot")
+    try:
+        await dp.start_polling(bot)
+    except asyncio.CancelledError:
+        logging.info("Telegram bot stopped")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # startup
+    load_dotenv()
+    logging.basicConfig(level=logging.INFO)
+    logging.info("STARTUP")
+    bot_task = asyncio.create_task(start_bot())
+    yield
+    # shutdown
+    logging.info("SHUTDOWN")
+    bot_task.cancel()
+
+app = FastAPI(
+    lifespan=lifespan,
+    swagger_ui_parameters=settings.swagger,
+)
 
 class ConnectionManager:
     def __init__(self):
@@ -30,32 +64,8 @@ async def websocket_endpoint(websocket: WebSocket):
     except WebSocketDisconnect:
         manager.disconnect(websocket)
 
-
-# from fastapi                 import FastAPI
-# from fastapi.staticfiles     import StaticFiles
-# from contextlib              import asynccontextmanager
-
-# @asynccontextmanager
-# async def lifespan(app: FastAPI):
-#     logging.basicConfig(level=logging.INFO)
-#     await create_tables()
-#     yield
-
-# app = FastAPI(
-#     lifespan=lifespan,
-#     swagger_ui_parameters={"defaultModelsExpandDepth": -1},
-# )
-
-# app.mount(app=StaticFiles(directory="static"),    path="/static")
-# app.mount(app=StaticFiles(directory="templates"), path="/templates")
-
-# app.include_router(clover_home_router, include_in_schema=False)
-# app.include_router(parser_router, prefix="/api/v1/parser", tags=["Parser"])
-
 # python -m venv venv
 # venv\Scripts\activate
 # source venv/bin/activate
 # pip install -r requirements.txt
-# uvicorn src.main:app --reload
-# alembic revision --autogenerate -m ""
-# alembic upgrade head
+# uvicorn main:app --reload

@@ -3,3 +3,5 @@ uvicorn
 pyttsx3
 websockets
 asyncio
+python-dotenv
+aiogram
