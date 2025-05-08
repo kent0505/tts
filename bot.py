@@ -6,9 +6,6 @@ import websockets
 
 router = Router()
 
-users = [1093286245, 507330315]
-
-# Create keyboard
 keyboard = ReplyKeyboardMarkup(
     keyboard=[
         [KeyboardButton(text="Да"), KeyboardButton(text="Нет")],
@@ -24,7 +21,7 @@ async def cmd_start(message: Message):
 
 @router.message()
 async def handle_all_messages(message: Message):
-    if (message.chat.id in users):
+    if (message.chat.id in settings.users):
         uri = f"ws://{settings.url}/ws/chat"
         async with websockets.connect(uri) as websocket:
             await websocket.send(message.text)
