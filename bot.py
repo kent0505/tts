@@ -24,9 +24,12 @@ async def cmd_start(message: Message):
 @router.message()
 async def handle_all_messages(message: Message):
     if (message.chat.id in settings.users):
-        print(settings.url)
-        uri = f"ws://{settings.url}/ws/chat"
-        async with websockets.connect(uri) as websocket:
-            await websocket.send(message.text)
+        try:
+            logging.info(settings.url)
+            uri = f"ws://{settings.url}/ws/chat"
+            async with websockets.connect(uri) as websocket:
+                await websocket.send(message.text)
+        except Exception as e:
+            logging.info(e)
     else:
         await message.delete()

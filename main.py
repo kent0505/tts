@@ -54,6 +54,10 @@ class ConnectionManager:
 
 manager = ConnectionManager()
 
+@app.route("/")
+async def main():
+    return {"message": "OK"}
+
 @app.websocket("/ws/chat")
 async def websocket_endpoint(websocket: WebSocket):
     await manager.connect(websocket)
