@@ -2,7 +2,9 @@ from aiogram         import Router
 from aiogram.filters import CommandStart
 from aiogram.types   import Message, ReplyKeyboardMarkup, KeyboardButton
 from settings        import settings
+
 import websockets
+import logging
 
 router = Router()
 
@@ -22,6 +24,7 @@ async def cmd_start(message: Message):
 @router.message()
 async def handle_all_messages(message: Message):
     if (message.chat.id in settings.users):
+        print(settings.url)
         uri = f"ws://{settings.url}/ws/chat"
         async with websockets.connect(uri) as websocket:
             await websocket.send(message.text)
