@@ -16,6 +16,12 @@ class ConnectionManager:
         for connection in self.active_connections:
             await connection.send_text(message)
 
+    def get_active_connections(self) -> List[WebSocket]:
+        return self.active_connections
+
+    def get_connection_count(self) -> int:
+        return len(self.active_connections)
+
 manager = ConnectionManager()
 router = APIRouter()
 

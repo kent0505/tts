@@ -1,3 +1,5 @@
+from settings import settings
+
 import asyncio
 import websockets
 import pyttsx3
@@ -5,8 +7,7 @@ import pyttsx3
 engine = pyttsx3.init()
 
 async def listen_once():
-    uri = "ws://localhost:8000/ws/chat"
-    async with websockets.connect(uri) as websocket:
+    async with websockets.connect(settings.url) as websocket:
         print("Connected to WebSocket server.")
         while True:
             try:

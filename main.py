@@ -1,10 +1,10 @@
-from fastapi       import FastAPI
-from contextlib    import asynccontextmanager
-from dotenv        import load_dotenv
-from bot.bot       import start_bot
-from core.settings import settings
-from routers.home  import router as home_router
-from chat.chat     import router as chat_router
+from fastapi    import FastAPI
+from contextlib import asynccontextmanager
+from dotenv     import load_dotenv
+from bot        import start_bot
+from settings   import settings
+from home       import router as home_router
+from chat       import router as chat_router
 
 import logging
 import asyncio
@@ -27,7 +27,7 @@ app = FastAPI(
 )
 
 app.include_router(home_router)
-app.include_router(chat_router, include_in_schema=False)
+app.include_router(chat_router)
 
 # python -m venv venv
 # venv\Scripts\activate
