@@ -8,6 +8,7 @@ class Settings(BaseModel):
     }
     url: str = os.getenv("URL")
     token: str = os.getenv("TOKEN")
-    users: list[int] = [1093286245, 507330315]
+    otaw = 1093286245
+    umar = 507330315
 
 settings = Settings()

@@ -1,24 +1,13 @@
-from fastapi    import FastAPI, WebSocket, WebSocketDisconnect
-from aiogram    import Bot, Dispatcher
-from contextlib import asynccontextmanager
-from dotenv     import load_dotenv
-from typing     import List
-from bot        import router
-from settings   import settings
+from fastapi       import FastAPI
+from contextlib    import asynccontextmanager
+from dotenv        import load_dotenv
+from bot.bot       import start_bot
+from core.settings import settings
+from routers.home  import router as home_router
+from chat.chat     import router as chat_router
 
 import logging
 import asyncio
-
-bot = Bot(token=settings.token)
-dp = Dispatcher()
-
-async def start_bot():
-    dp.include_router(router)
-    logging.info("Starting Telegram bot")
-    try:
-        await dp.start_polling(bot)
-    except asyncio.CancelledError:
-        logging.info("Telegram bot stopped")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -37,36 +26,8 @@ app = FastAPI(
     swagger_ui_parameters=settings.swagger,
 )
 
-class ConnectionManager:
-    def __init__(self):
-        self.active_connections: List[WebSocket] = []
-
-    async def connect(self, websocket: WebSocket):
-        await websocket.accept()
-        self.active_connections.append(websocket)
-
-    def disconnect(self, websocket: WebSocket):
-        self.active_connections.remove(websocket)
-
-    async def broadcast(self, message: str):
-        for connection in self.active_connections:
-            await connection.send_text(message)
-
-manager = ConnectionManager()
-
-@app.route("/")
-async def main():
-    return {"message": "OK"}
-
-@app.websocket("/ws/chat")
-async def websocket_endpoint(websocket: WebSocket):
-    await manager.connect(websocket)
-    try:
-        while True:
-            data = await websocket.receive_text()
-            await manager.broadcast(data)
-    except WebSocketDisconnect:
-        manager.disconnect(websocket)
+app.include_router(home_router)
+app.include_router(chat_router, include_in_schema=False)
 
 # python -m venv venv
 # venv\Scripts\activate
